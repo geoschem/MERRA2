@@ -380,6 +380,8 @@ sub moveFiles(@) {
   my $result   = "";
   my $target   = "";
   my $fileType = "";
+  my $ncBinDir = $ENV{"BIN_NETCDF"};
+  my $ncCopy   = "$ncBinDir/nccopy";
 
   # Skip the first argument, which is the date
   for ( my $i=1; $i<=$#ARGV; $i++ ) {
@@ -406,7 +408,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
     
       # Move the files
       print "$cmd\n";
@@ -432,7 +435,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
     
       # Move the files
       print "$cmd\n";
@@ -458,7 +462,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd  = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd  = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd  = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
     
       # Move the files
       print "$cmd\n";
@@ -484,7 +489,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd  = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd  = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd  = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
     
       # Move the files
       print "$cmd\n";
@@ -510,7 +516,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd  = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd  = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
     
       # Move the files
       print "$cmd\n";
@@ -536,7 +543,8 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+#      $cmd = "ls $dir > /dev/null; nccopy -d$comp $mask $target; rm -f $mask";
+      $cmd = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target";
 
       # Move the files
       print "$cmd\n";

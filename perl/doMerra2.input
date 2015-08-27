@@ -20,15 +20,14 @@
 # Submit Statement       : {JOB} will be replaced w/ the actual job script name
 #
 # !REMARKS:
-#  You need to add a \ before the @ sign in email addresses,
-#  otherwise Perl won't know how to deal with it.
+#  Customized for discover
 #
 # !REVISION HISTORY: 
 #  31 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 #
 
 ==> Raw Met Data Directory
-/as/scratch/bmy/MERRA2/raw
+/discover/nobackup/ryantosc/raw
 
 ==> Code Directory
 ../bin
@@ -53,9 +52,6 @@ Merra2_Driver.x
 
 ==> Sleep Time [s]
 300
-
-==> Emails for Notification
-yantosca\@seas.harvard.edu
 
 ==> netCDF compression level
 5

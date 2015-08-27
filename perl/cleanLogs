@@ -98,7 +98,7 @@ sub main() {
 # !REVISION HISTORY:
 #  24 Oct 2011 - R. Yantosca - Initial version, based on GEOS-5/perl/cleanLogs
 #  20 Sep 2013 - R. Yantosca - Now reads input file "doGeosFp.input"
-
+#  27 Aug 2015 - R. Yantosca - Bug fix: now remove files log.doMerra2.*
 #EOP
 #------------------------------------------------------------------------------
 #BOC
@@ -117,7 +117,7 @@ sub main() {
 
   # Remove log files only
   foreach $file ( @files ) {
-    if ( $file =~ m/log.doMerra2Multi/ ) {
+    if ( $file =~ m/log.doMerra2/ ) {
       $cmd = "rm -f $logDir/$file";
       print "$cmd\n";
       qx( $cmd );

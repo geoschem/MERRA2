@@ -268,15 +268,9 @@ lib: $(OBJ)
 	$(AR) crs libMerra2.a $(OBJ)
 	mv libMerra2.a $(LIB)
 
-exe: $(OBJx) $(OBJx) $(OBJx0) $(OBJx1) $(OBJx2)
-	$(LD) $(OBJx) -L$(LIB) -lMerra2 $(LINK_NC) -o $(EXE)
-	$(LD) $(OBJx0) -L$(LIB) -lMerra2 $(LINK_NC) -o $(EXE0)
-	$(LD) $(OBJx1) -L$(LIB) -lMerra2 $(LINK_NC) -o $(EXE1)
-	$(LD) $(OBJx2) -L$(LIB) -lMerra2 $(LINK_NC) -o $(EXE2)
+exe: $(OBJx)
+	$(LD) $(OBJx) -L$(LIB) -lMerra2 $(NC_LINK_CMD) -o $(EXE)
 	cp -f $(EXE) $(BIN)
-	cp -f $(EXE0) $(BIN)
-	cp -f $(EXE1) $(BIN)
-	cp -f $(EXE2) $(BIN)
 
 doc:
 	$(MAKE) -C $(DOC) doc

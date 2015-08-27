@@ -21,6 +21,7 @@
 # End all directory path names with slashes!
 #
 # !REMARKS:
+#  Customized for discover.
 #
 # !REVISION HISTORY: 
 #  28 Jul 2015 - R. Yantosca - Initial version for MERRA2, based on GEOS-FP
@@ -30,93 +31,93 @@
 T
 
 ==> const_2d_asm_Nx
-MERRA2_400.const_2d_asm_Nx.00000000.nc4
+MERRA2_300.const_2d_asm_Nx.00000000.nc4
 FRLAKE,FRLAND,FRLANDICE,FROCEAN,PHIS
-T
+F
 
 ==> tavg1_2d_flx_Nx
-MERRA2_400.tavg1_2d_flx_Nx.YYYYMMDD.nc4
+MERRA2_300.tavg1_2d_flx_Nx.YYYYMMDD.nc4
 EFLUX,EVAP,FRSEAICE,HFLUX,PBLH,PRECANV,PRECCON,PRECLSC,PRECSNO,PRECTOT,USTAR,Z0M
 
 ==> tavg1_2d_lnd_Nx
-MERRA2_400.tavg1_2d_lnd_Nx.YYYYMMDD.nc4
+MERRA2_300.tavg1_2d_lnd_Nx.YYYYMMDD.nc4
 FRSNO,GRN,GWETROOT,GWETTOP,LAI,PARDF,PARDR,SNODP,SNOMAS
 
 ==> tavg1_2d_rad_Nx
-MERRA2_400.tavg1_2d_rad_Nx.YYYYMMDD.nc4
+MERRA2_300.tavg1_2d_rad_Nx.YYYYMMDD.nc4
 ALBEDO,CLDTOT,LWGNT,LWTUP,SWGDN
 
 ==> tavg1_2d_slv_Nx
-MERRA2_400.tavg1_2d_slv_Nx.YYYYMMDD.nc4
+MERRA2_300.tavg1_2d_slv_Nx.YYYYMMDD.nc4
 QV2M,SLP,TROPPT,TS,T2M,U10M,V10M,T10M,Q850,TO3
 
 ==> tavg3_3d_asm_Nv
-MERRA2_400.tavg3_3d_asm_Nv.YYYYMMDD.nc4
+MERRA2_300.tavg3_3d_asm_Nv.YYYYMMDD.nc4
 OMEGA,U,V
 
 ==> tavg3_3d_cld_Nv
-MERRA2_400.tavg3_3d_cld_Nv.YYYYMMDD.nc4
+MERRA2_300.tavg3_3d_cld_Nv.YYYYMMDD.nc4
 A3cld: CLOUD,QI,QL,TAUCLI,TAUCLW,OPTDEPTH
 A3dyn: DTRAIN,RH
 
 ==> tavg3_3d_mst_Ne
-MERRA2_400.tavg3_3d_mst_Ne.YYYYMMDD.nc4
+MERRA2_300.tavg3_3d_mst_Ne.YYYYMMDD.nc4
 CMFMC,PFICU,PFILSAN,PFLCU,PFLLSAN
 
 ==> tavg3_3d_mst_Nv
-MERRA2_400.tavg3_3d_mst_Nv.YYYYMMDD.nc4
+MERRA2_300.tavg3_3d_mst_Nv.YYYYMMDD.nc4
 DQRCU,DQRLSAN,REEVAPCN,REEVAPLSAN
 
 ==> tavg3_3d_rad_Nv
-MERRA2_400.tavg3_3d_rad_Nv.YYYYMMDD.nc4
+MERRA2_300.tavg3_3d_rad_Nv.YYYYMMDD.nc4
 none
 
 ==> inst3_3d_asm_Nv
-MERRA2_400.inst3_3d_asm_Nv.YYYYMMDD.nc4
+MERRA2_300.inst3_3d_asm_Nv.YYYYMMDD.nc4
 PS,PV,QV,T
 
 ==> Local Raw Data Path
-/as/scratch/bmy/MERRA2/raw/
+/discover/nobackup/ryantosc/raw/
 
 ==> Nested 0625 CH output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.CH.nc4
-/as/scratch/bmy/MERRA2/processed/
-/as/scratch/bmy/MERRA2/processed/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
   401  211  513 291   # China grid
 
 ==> Nested 0625 EU output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.EU.nc4
-/as/scratch/bmy/MERRA2/processed/
-/as/scratch/bmy/MERRA2/processed/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
   265 246 353 303     
 
 ==> Nested 0625 NA output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.NA.nc4
-/as/scratch/bmy/MERRA2/processed/
-/as/scratch/bmy/MERRA2/processed/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
   81 201 193 301
 
 ==> Nested 0625 SE output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.SE.nc4
-/as/scratch/bmy/MERRA2/processed/
-/as/scratch/bmy/MERRA2/processed/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
   409 161 497 241
   
 ==> 2 x 2.5 output
 F
 MERRA2.YYYYMMDD.%%%%%%.2x25.nc4
-/as/scratch/bmy/MERRA2/processed/
-/mnt/gcgrid-rw/data/ExtData/GEOS_2x2.5/MERRA2/YYYY/MM/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
 
 ==> 4 x 5 output 
 T
 MERRA2.YYYYMMDD.%%%%%%.4x5.nc4
-/as/scratch/bmy/MERRA2/processed/
-/mnt/gcgrid-rw/data/ExtData/GEOS_4x5/MERRA2/YYYY/MM/
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/
 
 ==> Mapping Weight Files
 weights_05x0625_to_2x25.txt

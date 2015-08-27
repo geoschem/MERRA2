@@ -497,36 +497,37 @@ sub main() {
   # Get default values
   &getDefaults( "doMerra2.input", $ARGV[0] );
 
-  # Quick & dirty test if all the files are present in the met dir
-  # Not an exhaustive check but this should be good enough to prevent the
-  # met field code from starting if there aren't enough files. (bmy, 8/7/13)
-  $listCmd = "ls -1 $MET_DIRECTORY/MERRA2*"."@ARGV"."*";
-  chomp( @files = qx( $listCmd ) );
-
-  # Check if files have been downloaded properly
-  foreach $file ( @files ) { 
-
-    # If file is found, increment list
-    if ( -f  $file ) { $status++; } 
- 
-    # Get the version ID from the tavg1_2d_flx_Nx collection file
-    # (this should be the same for all files)
-    if ( $file =~ m/tavg1_2d_flx_Nx/ ) { 
-      $cmd        = "ncdump -ct $file | grep VersionID";
-      $VERSION_ID = qx/$cmd/;
-      chomp( $VERSION_ID );
-      $VERSION_ID =~ s/[a-zA-Z\s\:\;\"\=]//g;
-    }  
-  }
-
-  # Make sure we match the expected # of files
-  if ( $status == $N_FILES ) { 
-    print "doMerra2: All files present!  Now processing met for $ARGV[0]!\n"; 
-  } else {
-    print "doMerra2: Not enough raw met files for $ARGV[0]!\n"; 
-    exit(1); 
-  }
-
+#  # Quick & dirty test if all the files are present in the met dir
+#  # Not an exhaustive check but this should be good enough to prevent the
+#  # met field code from starting if there aren't enough files. (bmy, 8/7/13)
+#  $listCmd = "ls -1 $MET_DIRECTORY/MERRA2*"."@ARGV"."*";
+#  chomp( @files = qx( $listCmd ) );
+#
+#  # Check if files have been downloaded properly
+#  foreach $file ( @files ) { 
+#    print "$file\n";
+#
+#    # If file is found, increment list
+#    if ( -f  $file ) { $status++; } 
+# 
+#    # Get the version ID from the tavg1_2d_flx_Nx collection file
+#    # (this should be the same for all files)
+#    if ( $file =~ m/tavg1_2d_flx_Nx/ ) { 
+#      $cmd        = "ncdump -ct $file | grep VersionID";
+#      $VERSION_ID = qx/$cmd/;
+#      chomp( $VERSION_ID );
+#      $VERSION_ID =~ s/[a-zA-Z\s\:\;\"\=]//g;
+#    }  
+#  }
+#
+#  # Make sure we match the expected # of files
+#  if ( $status == $N_FILES ) { 
+#    print "doMerra2: All files present!  Now processing met for $ARGV[0]!\n"; 
+#  } else {
+#    print "doMerra2: Not enough raw met files for $ARGV[0]!\n"; 
+#    exit(1); 
+#  }
+#
   # Get system variables
   &getSysVars();
 

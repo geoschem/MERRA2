@@ -60,26 +60,54 @@ ifndef COMPILER
 COMPILER := ifort
 endif
 
-# Library include path
-INC_NC    := -I$(INC_NETCDF)
+###############################################################################
+###                                                                         ###
+###  Set linker commands for local and external libraries (incl. netCDF)    ###
+###                                                                         ###
+###############################################################################
 
-# Library link path: first try to get the list of proper linking flags
-# for this build of netCDF with nf-config and nc-config. 
-LINK_NC   := $(shell $(BIN_NETCDF)/nf-config --flibs)
-LINK_NC   += $(shell $(BIN_NETCDF)/nc-config --libs)
-LINK_NC   := $(filter -l%,$(LINK_NC))
+# netCDF Library include path.  
+# Test if a separate netcdf-fortran library is specified.
+NC_INC_CMD         := -I$(INC_NETCDF)
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#%%%% NOTE TO GEOS-5.7.x USERS: If you do not have netCDF-4.2 installed,
-#%%%% Then you can add/modify the linking sequence here.  (This sequence
-#%%%% is a guess, but is probably good enough for other netCDF builds.)
-#ifeq ($(LINK_NC),) 
-#LINK_NC   := -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lm -lz
-#endif
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Get the version number (e.g. "4130"=netCDF 4.1.3; "4200"=netCDF 4.2, etc.)
+NC_VERSION           :=$(shell $(BIN_NETCDF)/nc-config --version)
+NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|netCDF ||g')
+NC_VERSION           :=$(shell echo "$(NC_VERSION)" | sed 's|\.||g')
+NC_VERSION_LEN       :=$(shell perl -e "print length $(NC_VERSION)")
+ifeq ($(NC_VERSION_LEN),3)
+ NC_VERSION          :=$(NC_VERSION)0
+endif
+ifeq ($(NC_VERSION_LEN),2) 
+ NC_VERSION          :=$(NC_VERSION)00
+endif
 
-# Prepend the library directory path to the linking sequence
-LINK_NC   := -L$(LIB_NETCDF) $(LINK_NC)
+# Test if we have at least netCDF 4.2.0.0
+AT_LEAST_NC_4200     :=$(shell perl -e "print ($(NC_VERSION) ge 4200)")
+
+ifeq ($(AT_LEAST_NC_4200),1) 
+
+  #-------------------------------------------------------------------------
+  # netCDF 4.2 and higher:
+  # Use "nf-config --flibs" and "nc-config --libs"
+  # Test if a separate netcdf-fortran path is specified
+  #-------------------------------------------------------------------------
+  NC_LINK_CMD        := $(shell $(BIN_NETCDF)/nf-config --flibs)
+  NC_LINK_CMD        += $(shell $(BIN_NETCDF)/nc-config --libs)
+
+else
+
+  #-----------------------------------------------------------------------
+  # Prior to netCDF 4.2:
+  # Use "nc-config --flibs" and nc-config --libs
+  #-----------------------------------------------------------------------
+  NC_LINK_CMD        := $(shell $(BIN_NETCDF)/nc-config --flibs)
+  NC_LINK_CMD        += $(shell $(BIN_NETCDF)/nc-config --libs)
+
+endif
+
+# Save for backwards compatibility
+NCL                  := $(NC_LINK_CMD)
 
 #==============================================================================
 # MPIF90 compilation options 
@@ -103,7 +131,7 @@ ifdef TRACEBACK
 FFLAGS   += -traceback
 endif
 
-INCLUDE  := -module $(MOD) -I$(MOD) $(INC_NC)
+INCLUDE  := -module $(MOD) -I$(MOD) $(NC_INC_CMD)
 F90      := mpif90 $(FFLAGS) $(INCLUDE)
 LD       := mpif90 $(FFLAGS) $(INCLUDE)
 FREEFORM := -free
@@ -137,7 +165,7 @@ ifdef TRACEBACK
 FFLAGS   += -traceback
 endif
 
-INCLUDE  := -module $(MOD) -I$(MOD) $(INC_NC)
+INCLUDE  := -module $(MOD) -I$(MOD) $(NC_INC_CMD)
 F90      := ifort $(FFLAGS) $(INCLUDE)
 LD       := ifort $(FFLAGS) $(INCLUDE)
 FREEFORM := -free
@@ -166,7 +194,7 @@ ifdef BOUNDS
 FFLAGS   += -C
 endif
 
-INCLUDE  := -module $(MOD) -I$(MOD) $(INC_NC)
+INCLUDE  := -module $(MOD) -I$(MOD) $(NC_INC_CMD)
 F90      := pgf90 $(FFLAGS) $(INCLUDE)
 LD       := pgf90 $(FFLAGS) $(INCLUDE)
 FREEFORM := -Mfree
@@ -235,7 +263,7 @@ ifdef BOUNDS
 FFLAGS += -C
 endif
 
-F90      = xlf90_r $(FFLAGS) $(INC_NC)
+F90      = xlf90_r $(FFLAGS) $(NC_INC_CMD)
 LD       = xlf90_r $(FFLAGS)
 FREEFORM = -qrealsize=8
 
@@ -256,7 +284,7 @@ endif
 export F90
 export FREEFORM
 export LD
-export LINK_NC
+export NC_LINK_CMD
 #EOC
 
 #==============================================================================
