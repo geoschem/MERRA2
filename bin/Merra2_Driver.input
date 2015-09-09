@@ -97,6 +97,12 @@ MERRA2.YYYYMMDD.%%%%%%.05x0625.SE.nc4
 /discover/nobackup/ryantosc/data/compressed/0.5x0.625_SE/
   409 161 497 241
 
+==> Global 0.5 x 0.625 output
+T
+MERRA2.YYYYMMDD.%%%%%%.05x0625.nc4
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/0.5x0.625/
+
 ==> 2 x 2.5 output
 F
 MERRA2.YYYYMMDD.%%%%%%.2x25.nc4

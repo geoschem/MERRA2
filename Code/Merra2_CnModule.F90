@@ -101,6 +101,7 @@ CONTAINS
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 !  13 Aug 2015 - R. Yantosca - If the output file name ends in *.nc4 
 !                              then save data to disk in netCDF-4 format
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -219,6 +220,9 @@ CONTAINS
     ! Pick DI and DJ attributes based on the grid
     SELECT CASE ( TRIM( gridName ) )
        CASE( 'nested CH 05', 'nested EU 05', 'nested NA 05', 'nested SE 05' )
+          DI = '0.625'
+          DJ = '0.5'
+       CASE( '0.5 x 0.625 global' )
           DI = '0.625'
           DJ = '0.5'
        CASE( '2 x 2.5 global' )
@@ -439,6 +443,7 @@ CONTAINS
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 !  13 Aug 2015 - R. Yantosca - Bug fix: now use 2015/01/01 for CN date
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -510,6 +515,18 @@ CONTAINS
        CALL NcOutFileDef( I4x5,      J4x5,      1,              &
                           xMid_4x5,  nc_yMid_4x5,  time,        &
                           gName,     fName,     fOut4x5        )
+    ENDIF
+
+    ! Open 0.5 x 0.625 output file
+    IF ( doGlobal05 ) THEN
+       fName = TRIM( tempDirTmpl05x0625 ) // TRIM( dataTmpl05x0625 )
+       gName = '0.5 x 0.625 global'
+       CALL ExpandDate  ( fName,        yyyymmdd,        000000      )      
+       CALL StrRepl     ( fName,        '%%%%%%',        'CN    '    )
+       CALL StrCompress ( fName,        RemoveAll=.TRUE.             )
+       CALL NcOutFileDef( I05x0625,     J05x0625,        1,           &
+                          xMid_05x0625, nc_yMid_05x0625, time,        &
+                          gName,        fName,           fOut05x0625 )
     ENDIF
 
     ! Open nested CH output file
@@ -586,6 +603,7 @@ CONTAINS
     ! Close output files
     IF ( do2x25     ) CALL NcCl( fOut2x25     )
     IF ( do4x5      ) CALL NcCl( fOut4x5      )
+    IF ( doGlobal05 ) CALL NcCl( fOut05x0625  )
     IF ( doNestCh05 ) CALL NcCl( fOut05NestCh )
     IF ( doNestEu05 ) CALL NcCl( fOut05NestEu )
     IF ( doNestNa05 ) CALL NcCl( fOut05NestNa )
@@ -619,6 +637,7 @@ CONTAINS
 !
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -634,6 +653,7 @@ CONTAINS
     INTEGER                 :: XNestEu05, YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05, YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05, YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,  Y05x0625,   T05x0625
     INTEGER                 :: X2x25,     Y2x25,      T2x25
     INTEGER                 :: X4x5,      Y4x5,       T4x5
     INTEGER                 :: st2d(2),   st3d(3)
@@ -669,6 +689,13 @@ CONTAINS
        CALL NcGet_DimLen( fOut4x5,      'lon',  X4x5      )
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
     
     ! Nested CH grid 0625
@@ -798,6 +825,15 @@ CONTAINS
           st3d = (/ 1,    1,    1 /)
           ct3d = (/ X4x5, Y4x5, 1 /)
           CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st3d, ct3d )          
+       ENDIF
+
+       ! Write 0.5 x 0.625 data
+       IF ( doGlobal05 ) THEN
+          QNest => Q(:,:,1)
+          st3d  = (/ 1,        1,        1 /)
+          ct3d  = (/ X05x0625, Y05x0625, 1 /)
+          CALL NcWr( QNest, fOut05x0625, TRIM( name ), st3d, ct3d )
+          NULLIFY( QNest )
        ENDIF
 
        ! Nested CH

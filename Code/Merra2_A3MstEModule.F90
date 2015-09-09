@@ -94,6 +94,7 @@ MODULE Merra2_A3MstEModule
 !
 ! !REVISION HISTORY:
 !  28 May 2015 - R. Yantosca - Initial version
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -217,6 +218,9 @@ MODULE Merra2_A3MstEModule
 !       CASE ( 'nested 0.5 x 0.625' )
 ! (lzh,06/21/2014)
        CASE( 'nested CH 05', 'nested EU 05', 'nested NA 05', 'nested SE 05' )
+          DI = '0.625'
+          DJ = '0.5'
+       CASE( '0.5 x 0.625 global' )
           DI = '0.625'
           DJ = '0.5'
        CASE( '2 x 2.5 global' )
@@ -429,6 +433,7 @@ MODULE Merra2_A3MstEModule
 !
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -498,6 +503,19 @@ MODULE Merra2_A3MstEModule
                           gName,     fName,        fOut4x5                 )
     ENDIF
     
+    ! Open 0.5 x 0.625 output file
+    IF ( doGlobal05 ) THEN
+       fName = TRIM( tempDirTmpl05x0625 ) // TRIM( dataTmpl05x0625 )
+       gName = '0.5 x 0.625 global'
+       CALL ExpandDate  ( fName,         yyyymmdd,        000000      )      
+       CALL StrRepl     ( fName,         '%%%%%%',        'A3mstE'    )
+       CALL NcOutFileDef( I05x0625,      J05x0625,        &
+                          L05x0625+1,    TIMES_A3,        &
+                          xMid_05x0625,  nc_yMid_05x0625, &
+                          zEdge_05x0625, a3Mins,          &
+                          gName,         fName,           fOut05x0625 )
+    ENDIF
+
     ! Open nested 0625 CH output file
     IF ( doNestCh05 ) THEN
        fName = TRIM( tempDirTmplNestCh05 ) // TRIM( dataTmplNestCh05 )
@@ -566,6 +584,7 @@ MODULE Merra2_A3MstEModule
     ! Close output files
     IF ( do2x25     ) CALL NcCl( fOut2x25     )
     IF ( do4x5      ) CALL NcCl( fOut4x5      )
+    IF ( doGlobal05 ) CALL NcCl( fOut05x0625  )
     IF ( doNestCh05 ) CALL NcCl( fOut05NestCh )
     IF ( doNestEu05 ) CALL NcCl( fOut05NestEu )
     IF ( doNestNa05 ) CALL NcCl( fOut05NestNa )
@@ -600,6 +619,7 @@ MODULE Merra2_A3MstEModule
 !
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -616,6 +636,7 @@ MODULE Merra2_A3MstEModule
     INTEGER                 :: XNestEu05, YNestEu05, ZNestEu05, TNestEu05
     INTEGER                 :: XNestNa05, YNestNa05, ZNestNa05, TNestNa05
     INTEGER                 :: XNestSe05, YNestSe05, ZNestSe05, TNestSe05
+    INTEGER                 :: X05x0625,  Y05x0625,  Z05x0625,  T05x0625
     INTEGER                 :: X2x25,     Y2x25,     Z2x25,     T2x25
     INTEGER                 :: X4x5,      Y4x5,      Z4x5,      T4x5
     INTEGER                 :: st4d(4),   ct4d(4)
@@ -657,6 +678,14 @@ MODULE Merra2_A3MstEModule
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'lev',  Z4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lev',  Z05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
 
     IF ( doNestCh05 ) THEN
@@ -793,6 +822,15 @@ MODULE Merra2_A3MstEModule
              CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st4d, ct4d )
           ENDIF
           
+          ! Write 0.5 x 0.625 data
+          IF ( doGlobal05 ) THEN
+             Ptr  => Qflip(:,:,:)
+             st4d = (/ 1,         1,         1,         H /)
+             ct4d = (/ X05x0625,  Y05x0625,  Z05x0625 , 1 /)
+             CALL NcWr( Ptr, fOut05x0625, TRIM( name ), st4d, ct4d )
+             NULLIFY( Ptr )
+          ENDIF
+
           ! Nested China (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Qflip( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )

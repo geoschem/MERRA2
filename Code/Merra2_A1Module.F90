@@ -116,6 +116,7 @@ MODULE Merra2_A1Module
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 !  13 Aug 2015 - R. Yantosca - If the output file name ends in *.nc4 
 !                              then save data to disk in netCDF-4 format
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -238,6 +239,9 @@ MODULE Merra2_A1Module
           DJ = '0.25'
       !CASE ( 'nested 0.5 x 0.625' ) (lzh,06/21/2014)
        CASE( 'nested CH 05', 'nested EU 05', 'nested NA 05', 'nested SE 05' ) !(lzh,06/21/2014)
+          DI = '0.625'
+          DJ = '0.5'
+       CASE( '0.5 x 0.625 global' )
           DI = '0.625'
           DJ = '0.5'
        CASE( '2 x 2.5 global' )
@@ -1196,6 +1200,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1317,6 +1322,18 @@ MODULE Merra2_A1Module
                           fOut05NestSe                           )
     ENDIF
 
+    ! Open 0.5 x 0.625 output file
+    IF ( doGlobal05 ) THEN
+       fName = TRIM( tempDirTmpl05x0625 ) // TRIM( dataTmpl05x0625 )
+       gName = '0.5 x 0.625 global'
+       CALL ExpandDate  ( fName,        yyyymmdd,        000000      )      
+       CALL StrRepl     ( fName,        '%%%%%%',        'A1    '    )
+       CALL StrCompress ( fName,        RemoveAll=.TRUE.             )
+       CALL NcOutFileDef( I05x0625,     J05x0625,        TIMES_A1,   &
+                          xMid_05x0625, nc_yMid_05x0625, a1Mins,     &
+                          gName,        fName,           fOut05x0625 )
+    ENDIF
+
     ! Open 2 x 2.5 output file
     IF ( do2x25 ) THEN
        fName = TRIM( tempDirTmpl2x25 ) // TRIM( dataTmpl2x25 )
@@ -1361,6 +1378,7 @@ MODULE Merra2_A1Module
     ! Close output files
     IF ( do2x25     ) CALL NcCl( fOut2x25     )
     IF ( do4x5      ) CALL NcCl( fOut4x5      )
+    IF ( doGlobal05 ) CALL NcCl( fOut05x0625  )
     IF ( doNestCh05 ) CALL NcCl( fOut05NestCh )
     IF ( doNestEu05 ) CALL NcCl( fOut05NestEu )
     IF ( doNestNa05 ) CALL NcCl( fOut05NestNa )
@@ -1396,6 +1414,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1411,6 +1430,7 @@ MODULE Merra2_A1Module
     INTEGER                 :: XNestEu05,  YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05,  YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05,  YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,   Y05x0625,   T05x0625
     INTEGER                 :: X2x25,      Y2x25,      T2x25
     INTEGER                 :: X4x5,       Y4x5,       T4x5
     INTEGER                 :: ct3d(3),    st3d(3)
@@ -1456,6 +1476,13 @@ MODULE Merra2_A1Module
        CALL NcGet_DimLen( fOut4x5,      'lon',  X4x5      )
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )  
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
 
     ! Nested CH grid 0625
@@ -1634,6 +1661,30 @@ MODULE Merra2_A1Module
              
              IF ( do05x0625 ) THEN
 
+                IF ( doGlobal05 ) THEN 
+
+                   !----------------------------------------------------------
+                   ! 0.5 x 0.625 GRID: Land/water/ice flags
+                   !----------------------------------------------------------
+                   Ptr  => lwi(:,:)
+                   st3d = (/ 1,        1,        H  /)
+                   ct3d = (/ X05x0625, Y05x0625, 1  /)
+                   CALL NcWr( Ptr, fOut05x0625, 'LWI', st3d, ct3d )
+
+                   !----------------------------------------------------------
+                   ! 0.5 x 0.625 GRID: Sea ice bins
+                   !----------------------------------------------------------
+                   DO S = 1, N_ICE
+                      WRITE( name2, 200 ) S-1
+                      Ptr  => ice(:,:,S)
+                      st3d = (/ 1,     1,     H  /)
+                      ct3d = (/ X05x0625, Y05x0625, 1  /)
+                      CALL NcWr( Ptr, fOut05x0625, name2, st3d, ct3d )
+                      NULLIFY( Ptr )
+                   ENDDO
+
+                ENDIF
+
                 IF ( doNestCh05 ) THEN
 
                    !----------------------------------------------------------
@@ -1779,6 +1830,15 @@ MODULE Merra2_A1Module
              CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st3d, ct3d )
           ENDIF
 
+          ! Write 0.5 x 0.625 data
+          IF ( doGlobal05 ) THEN
+             Ptr  => Q(:,:)
+             st3d = (/ 1,        1,        H /)
+             ct3d = (/ X05x0625, Y05x0625, 1 /)
+             CALL NcWr( Ptr, fOut05x0625, TRIM( name ), st3d, ct3d )
+             NULLIFY( Ptr )
+          ENDIF
+
           ! Nested CH (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Q( I0_ch05:I1_ch05, J0_ch05:J1_ch05 )
@@ -1855,6 +1915,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1870,6 +1931,7 @@ MODULE Merra2_A1Module
     INTEGER                 :: XNestEu05,  YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05,  YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05,  YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,   Y05x0625,   T05x0625
     INTEGER                 :: X2x25,      Y2x25,      T2x25
     INTEGER                 :: X4x5,       Y4x5,       T4x5
     INTEGER                 :: ct3d(3),    st3d(3)
@@ -1910,6 +1972,13 @@ MODULE Merra2_A1Module
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
     ENDIF
     
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
+    ENDIF
+
     ! (lzh, 06/21/2014) 0.5x0.625
     ! Nested CH grid 0625
     IF ( doNestCh05 ) THEN
@@ -2059,6 +2128,15 @@ MODULE Merra2_A1Module
              CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st3d, ct3d )
           ENDIF
 
+          ! Write 0.5 x 0.625 data
+          IF ( doGlobal05 ) THEN
+             Ptr  => Q(:,:)
+             st3d = (/ 1,        1,        H /)
+             ct3d = (/ X05x0625, Y05x0625, 1 /)
+             CALL NcWr( Ptr, fOut05x0625,  TRIM( name ), st3d, ct3d )
+             NULLIFY( Ptr )
+          ENDIF
+
           ! Nested CH (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Q( I0_ch05:I1_ch05, J0_ch05:J1_ch05 )
@@ -2135,6 +2213,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -2150,6 +2229,7 @@ MODULE Merra2_A1Module
     INTEGER                 :: XNestEu05,  YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05,  YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05,  YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,   Y05x0625,   T05x0625
     INTEGER                 :: X2x25,      Y2x25,      T2x25
     INTEGER                 :: X4x5,       Y4x5,       T4x5
     INTEGER                 :: ct3d(3),    st3d(3)
@@ -2189,6 +2269,13 @@ MODULE Merra2_A1Module
        CALL NcGet_DimLen( fOut4x5,      'lon',  X4x5      )
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
 
     ! Nested CH grid 0625
@@ -2332,6 +2419,15 @@ MODULE Merra2_A1Module
              CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st3d, ct3d )
           ENDIF
 
+          ! Write 0.5 x 0.625 data
+          IF ( doGlobal05 ) THEN
+             Ptr  => Q(:,:)
+             st3d = (/ 1,        1,        H /)
+             ct3d = (/ X05x0625, Y05x0625, 1 /)
+             CALL NcWr( Ptr, fOut05x0625, TRIM( name ), st3d, ct3d )
+             NULLIFY( Ptr )
+          ENDIF
+
           ! Nested CH (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Q( I0_ch05:I1_ch05, J0_ch05:J1_ch05 )
@@ -2408,6 +2504,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -2423,6 +2520,7 @@ MODULE Merra2_A1Module
     INTEGER                 :: XNestEu05,  YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05,  YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05,  YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,   Y05x0625,   T05x0625
     INTEGER                 :: X2x25,      Y2x25,      T2x25
     INTEGER                 :: X4x5,       Y4x5,       T4x5
     INTEGER                 :: ct3d(3),    st3d(3)
@@ -2464,6 +2562,13 @@ MODULE Merra2_A1Module
        CALL NcGet_DimLen( fOut4x5,      'lon',  X4x5      )
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      ) 
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
 
     ! Nested CH grid 0625
@@ -2659,6 +2764,15 @@ MODULE Merra2_A1Module
              CALL NcWr( Q4x5, fOut4x5, TRIM( name ), st3d, ct3d )
           ENDIF
           
+          ! Write 0.5 x 0.625 data
+          IF ( doGlobal05 ) THEN
+             Ptr  => Q(:,:)
+             st3d = (/ 1,        1,        H /)
+             ct3d = (/ X05x0625, Y05x0625, 1 /)
+             CALL NcWr( Ptr, fOut05x0625, TRIM( name ), st3d, ct3d )
+             NULLIFY( Ptr )
+          ENDIF
+
           ! Nested CH (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Q( I0_ch05:I1_ch05, J0_ch05:J1_ch05 )
@@ -2739,6 +2853,7 @@ MODULE Merra2_A1Module
 !
 ! !REVISION HISTORY: 
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
+!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -2754,6 +2869,7 @@ MODULE Merra2_A1Module
     INTEGER                 :: XNestEu05,  YNestEu05,  TNestEu05
     INTEGER                 :: XNestNa05,  YNestNa05,  TNestNa05
     INTEGER                 :: XNestSe05,  YNestSe05,  TNestSe05
+    INTEGER                 :: X05x0625,   Y05x0625,   T05x0625
     INTEGER                 :: X2x25,      Y2x25,      T2x25
     INTEGER                 :: X4x5,       Y4x5,       T4x5
     INTEGER                 :: ct3d(3),    st3d(3)
@@ -2791,6 +2907,13 @@ MODULE Merra2_A1Module
        CALL NcGet_DimLen( fOut4x5,      'lon',  X4x5      )
        CALL NcGet_DimLen( fOut4x5,      'lat',  Y4x5      )   
        CALL NcGet_DimLen( fOut4x5,      'time', T4x5      )
+    ENDIF
+
+    ! 0.5 x 0.625 global grid
+    IF ( doGlobal05 ) THEN
+       CALL NcGet_DimLen( fOut05x0625,  'lon',  X05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'lat',  Y05x0625  )
+       CALL NcGet_DimLen( fOut05x0625,  'time', T05x0625  )
     ENDIF
 
     ! Nested CH grid 0625
@@ -2925,6 +3048,15 @@ MODULE Merra2_A1Module
           CALL NcWr( Q4x5, fOut4x5, 'ALBEDO', st3d, ct3d )
        ENDIF
        
+       ! Write 0.5 x 0.625 data
+       IF ( doGlobal05 ) THEN
+          Ptr  => Q(:,:,1)
+          st3d = (/ 1,         1,         H /)
+          ct3d = (/ X05x0625,  Y05x0625,  1 /)
+          CALL NcWr( Ptr, fOut05x0625,  'ALBEDO', st3d, ct3d )
+          NULLIFY( Ptr )
+       ENDIF
+
        ! Nested CH (point to proper slice of global data)
        IF ( doNestCh05 ) THEN
           Ptr  => Q( I0_ch05:I1_ch05, J0_ch05:J1_ch05, 1 )

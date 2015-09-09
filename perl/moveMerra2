@@ -55,6 +55,10 @@ our $DO_NEST_SE        = "";
 our $DATA_FILE_NEST_SE = "";
 our $TEMP_DIR_NEST_SE  = "";
 our $DATA_DIR_NEST_SE  = "";
+our $DO_05x0625        = "";
+our $DATA_FILE_05x0625 = "";
+our $TEMP_DIR_05x0625  = "";
+our $DATA_DIR_05x0625  = "";
 our $DO_2x25           = "";
 our $DATA_FILE_2x25    = "";
 our $TEMP_DIR_2x25     = "";
@@ -69,6 +73,7 @@ our $DATA_DIR_4x5      = "";
 #
 # !REVISION HISTORY: 
 #  13 Aug 2015 - R. Yantosca - Initial version, based on GEOS-FP
+#  09 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 #EOP
 #------------------------------------------------------------------------------
 #                  GEOS-Chem Global Chemical Transport Model                  !
@@ -208,6 +213,12 @@ sub getDirectories($) {
       $TEMP_DIR_NEST_SE  = $file[++$i];
       $DATA_DIR_NEST_SE  = $file[++$i];
 
+    } elsif ( $file[$i] =~ "==> Global 0.5 x 0.625 output" ) {
+      $DO_05x0625        = $file[++$i];
+      $DATA_FILE_05x0625 = $file[++$i];
+      $TEMP_DIR_05x0625  = $file[++$i];
+      $DATA_DIR_05x0625  = $file[++$i];
+
     } elsif ( $file[$i] =~ "==> 2 x 2.5 output" ) {
       $DO_2x25           = $file[++$i];
       $DATA_FILE_2x25    = $file[++$i];
@@ -231,6 +242,7 @@ sub getDirectories($) {
   if ( $TEMP_DIR_NEST_EU eq $DATA_DIR_NEST_EU ) { $DO_NEST_EU = "F"; }
   if ( $TEMP_DIR_NEST_NA eq $DATA_DIR_NEST_NA ) { $DO_NEST_NA = "F"; }
   if ( $TEMP_DIR_NEST_SE eq $DATA_DIR_NEST_SE ) { $DO_NEST_SE = "F"; }
+  if ( $TEMP_DIR_05x0625 eq $DATA_DIR_05x0625 ) { $DO_05x0625 = "F"; }
   if ( $TEMP_DIR_2x25    eq $DATA_DIR_2x25    ) { $DO_2x25    = "F"; }
   if ( $TEMP_DIR_4x5     eq $DATA_DIR_4x5     ) { $DO_4x5     = "F"; }
 
@@ -494,6 +506,32 @@ sub moveFiles(@) {
       print "$cmd\n";
       $result = qx( $cmd );
     }	
+
+    #-------------------------------
+    # 0.5 x 0.625 global grid
+    #-------------------------------
+    if ( $DO_05x0625 =~ "T" ) {
+
+      # File path to temporary directory
+      $mask = "$TEMP_DIR_05x0625$DATA_FILE_05x0625";
+      $mask = &replaceTokens( $mask, $fileType );
+    
+      # File path to data directory
+      $dir = "$DATA_DIR_05x0625";
+      $dir = &replaceTokens( $dir, $fileType );
+      &checkDir( $dir );    
+
+      # New file name
+      $target = "$dir$DATA_FILE_05x0625";
+      $target = &replaceTokens( $target, $fileType );
+
+      # Move command (list the directory first to force an automount)
+      $cmd  = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target; rm -f $mask";
+    
+      # Move the files
+      print "$cmd\n";
+      $result = qx( $cmd );
+    }    
 
     #-------------------------------
     # 2 x 2.5 global grid

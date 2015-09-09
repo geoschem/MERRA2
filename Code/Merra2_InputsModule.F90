@@ -80,7 +80,7 @@ MODULE Merra2_InputsModule
 
   ! Scalars
   LOGICAL                 :: doNative                 ! Process native grid?
-  LOGICAL                 :: do2x25                   ! Save out 2 x 2.25
+  LOGICAL                 :: do2x25                   ! Save out 2 x 2.25?
   LOGICAL                 :: do4x5                    ! Save out 4 x 5?
   LOGICAL                 :: doMakeCn
   LOGICAL                 :: VERBOSE                  ! Do debug printout?
@@ -90,6 +90,7 @@ MODULE Merra2_InputsModule
   INTEGER                 :: fOutNestEu               ! NC fId; output EU grid
   INTEGER                 :: fOutNestNa               ! NC fId; output NA grid
   INTEGER                 :: fOutNestSe               ! NC fId; output SE grid
+  INTEGER                 :: fOut05x0625              ! NC fId; output 05x0625
   INTEGER                 :: fOut2x25                 ! NC fId; output 2x25
   INTEGER                 :: fOut4x5                  ! NC fId; output 4x5
   REAL*4                  :: FILL_VALUE = 1e15        ! Fill value in HDF file
@@ -98,12 +99,15 @@ MODULE Merra2_InputsModule
   CHARACTER(LEN=8)        :: yyyymmdd_string          ! String for YYYYMMDD
   CHARACTER(LEN=30)       :: VersionId                ! Version ID string
   CHARACTER(LEN=MAX_CHAR) :: inputDataDir             ! netCDF data dir
-  CHARACTER(LEN=MAX_CHAR) :: dataTmpl2x25             ! 2x25  file template
-  CHARACTER(LEN=MAX_CHAR) :: tempDirTmpl2x25          ! 2x25  temp dir
-  CHARACTER(LEN=MAX_CHAR) :: dataDirTmpl2x25          ! 2x25  data dir
-  CHARACTER(LEN=MAX_CHAR) :: dataTmpl4x5              ! 4x5   file template
-  CHARACTER(LEN=MAX_CHAR) :: tempDirTmpl4x5           ! 4x5   temporary dir
-  CHARACTER(LEN=MAX_CHAR) :: dataDirTmpl4x5           ! 4x5   data dir
+  CHARACTER(LEN=MAX_CHAR) :: dataTmpl05x0625          ! 05x0625 file template
+  CHARACTER(LEN=MAX_CHAR) :: tempDirTmpl05x0625       ! 05x0625 temp dir
+  CHARACTER(LEN=MAX_CHAR) :: dataDirTmpl05x0625       ! 05x0625 data dir
+  CHARACTER(LEN=MAX_CHAR) :: dataTmpl2x25             ! 2x25    file template
+  CHARACTER(LEN=MAX_CHAR) :: tempDirTmpl2x25          ! 2x25    temp dir
+  CHARACTER(LEN=MAX_CHAR) :: dataDirTmpl2x25          ! 2x25    data dir
+  CHARACTER(LEN=MAX_CHAR) :: dataTmpl4x5              ! 4x5     file template
+  CHARACTER(LEN=MAX_CHAR) :: tempDirTmpl4x5           ! 4x5     temporary dir
+  CHARACTER(LEN=MAX_CHAR) :: dataDirTmpl4x5           ! 4x5     data dir
   CHARACTER(LEN=MAX_CHAR) :: const_2d_asm_Nx_file     ! const_2d_chm_Nx file
   CHARACTER(LEN=MAX_CHAR) :: const_2d_asm_Nx_data     !  and list of data flds
   CHARACTER(LEN=MAX_CHAR) :: inst3_3d_asm_Nv_file     ! inst3_3d_asm_Nv file
@@ -142,6 +146,7 @@ MODULE Merra2_InputsModule
   REAL*4                  :: frLand   (I05x0625,J05x0625)  ! FRLAND data
 
   ! Nested grids
+  LOGICAL                 :: doGlobal05               ! Save global 0.5 x 0.625
   LOGICAL                 :: doNestCh05               ! Save nested CH grid?
   INTEGER                 :: I0_ch05,    J0_ch05      ! LL corner of CH grid
   INTEGER                 :: I1_ch05,    J1_ch05      ! UR corner of CH grid
@@ -299,6 +304,13 @@ MODULE Merra2_InputsModule
              I_NestSe05 = I1_se05 - I0_se05 + 1
              J_NestSe05 = J1_se05 - J0_se05 + 1
 
+
+          CASE( '==> Global 0.5 x 0.625 output' )
+             READ( IU_TXT,   *,      ERR=999 ) doGlobal05
+             READ( IU_TXT, '(a)',    ERR=999 ) dataTmpl05x0625
+             READ( IU_TXT, '(a)',    ERR=999 ) tempDirTmpl05x0625
+             READ( IU_TXT, '(a)',    ERR=999 ) dataDirTmpl05x0625
+
           CASE( '==> 2 x 2.5 output' )
              READ( IU_TXT,   *,      ERR=999 ) do2x25
              READ( IU_TXT, '(a)',    ERR=999 ) dataTmpl2x25
@@ -380,7 +392,8 @@ MODULE Merra2_InputsModule
     CLOSE( IU_TXT )
 
     ! (lzh, 06/20/2014)
-    do05x0625 = ( doNestCh05 .or. doNestEu05 .or. doNestNa05 .or. doNestSe05 )
+    do05x0625 = ( doNestCh05 .or. doNestEu05 .or. doNestNa05 .or. doNestSe05 &
+             .or. doGlobal05 )
     doNative  = do05x0625
 
     ! NOTE: We need to define a mapping weight to this grid
@@ -478,6 +491,7 @@ MODULE Merra2_InputsModule
        PRINT*, 'doNestSe05       : ', doNestSe05
        PRINT*, ' I0, J0, I1, J1  : ', I0_se05, J0_se05, I1_se05, J1_se05
        PRINT*, ' ISE, JSE        : ', I_NestSe05, J_NestSe05
+       PRINT*, 'doGlobal05       : ', doGlobal05
        PRINT*, 'do2x25           : ', do2x25
        PRINT*, 'do4x5            : ', do4x5
        PRINT*, 'doMakeCn         : ', doMakeCn
@@ -494,6 +508,9 @@ MODULE Merra2_InputsModule
        PRINT*, 'dataTmplNestSe05 : ', TRIM( dataTmplNestSe05        )
        PRINT*, 'tempDirNestSe05  : ', TRIM( tempDirTmplNestSe05     )
        PRINT*, 'dataDirNestSe05  : ', TRIM( dataDirTmplNestSe05     )
+       PRINT*, 'dataTmpl05c0625  : ', TRIM( dataTmpl05x0625         )
+       PRINT*, 'tempDirTmpl05x06 : ', TRIM( tempDirTmpl05x0625      )
+       PRINT*, 'dataDirTmpl05x06 : ', TRIM( dataDirTmpl05x0625      )
        PRINT*, 'dataTmpl2x25     : ', TRIM( dataTmpl2x25            )
        PRINT*, 'tempDirTmpl2x25  : ', TRIM( tempDirTmpl2x25         )
        PRINT*, 'dataDirTmpl2x25  : ', TRIM( dataDirTmpl2x25         )
