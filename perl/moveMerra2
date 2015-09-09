@@ -410,7 +410,7 @@ sub moveFiles(@) {
       $target = &replaceTokens( $target, $fileType );
 
       # Move command (list the directory first to force an automount)
-      $cmd = "ls $dir > /dev/null $ncCopy -d$comp $mask $target; rm -f $mask";
+      $cmd = "ls $dir > /dev/null; $ncCopy -d$comp $mask $target; rm -f $mask";
     
       # Move the files
       print "$cmd\n";

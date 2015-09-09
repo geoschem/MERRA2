@@ -80,51 +80,49 @@ PS,PV,QV,T
 /discover/nobackup/ryantosc/raw/
 
 #############################################################################
-### IGNORE THESE SETTINGS
-### WE ARE ONLY INTERESTED IN THE 4x5 and 0.5 x 0.625 NA GRIDS (bmy, 8/27/15)
-
-==> Nested 0625 CH output
-F
-MERRA2.YYYYMMDD.%%%%%%.05x0625.CH.nc4
-/discover/nobackup/ryantosc/data/uncompressed/
-/discover/nobackup/ryantosc/data/compressed/
-  401  211  513 291   # China grid
+### IGNORE THESE SETTINGS FOR NOW
+### WE ARE ONLY INTERESTED IN THE 4x5 and 0.5 x 0.625 NA/CH GRIDS (bmy, 8/27/15)
 
 ==> Nested 0625 EU output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.EU.nc4
 /discover/nobackup/ryantosc/data/uncompressed/
-/discover/nobackup/ryantosc/data/compressed/
+/discover/nobackup/ryantosc/data/compressed/0.5x0.625_EU/
   265 246 353 303     
 
 ==> Nested 0625 SE output
 F
 MERRA2.YYYYMMDD.%%%%%%.05x0625.SE.nc4
 /discover/nobackup/ryantosc/data/uncompressed/
-/discover/nobackup/ryantosc/data/compressed/
+/discover/nobackup/ryantosc/data/compressed/0.5x0.625_SE/
   409 161 497 241
-  
+
 ==> 2 x 2.5 output
 F
 MERRA2.YYYYMMDD.%%%%%%.2x25.nc4
 /discover/nobackup/ryantosc/data/uncompressed/
-/discover/nobackup/ryantosc/data/compressed/
+/discover/nobackup/ryantosc/data/compressed/2x2.5/
 #############################################################################
+
+==> Nested 0625 CH output
+T
+MERRA2.YYYYMMDD.%%%%%%.05x0625.CH.nc4
+/discover/nobackup/ryantosc/data/uncompressed/
+/discover/nobackup/ryantosc/data/compressed/0.5x0.625_CH/
+  401  159  529 291
 
 ==> Nested 0625 NA output
 T
 MERRA2.YYYYMMDD.%%%%%%.05x0625.NA.nc4
 /discover/nobackup/ryantosc/data/uncompressed/
 /discover/nobackup/ryantosc/data/compressed/0.5x0.625_NA/
-  81 201 193 301
+  65 201 225 321
 
 ==> 4 x 5 output 
 T
 MERRA2.YYYYMMDD.%%%%%%.4x5.nc4
 /discover/nobackup/ryantosc/data/uncompressed/
 /discover/nobackup/ryantosc/data/compressed/4x5/
-
-
 
 ==> Mapping Weight Files
 weights_05x0625_to_2x25.txt
