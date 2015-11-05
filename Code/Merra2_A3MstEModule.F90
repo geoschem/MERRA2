@@ -215,8 +215,6 @@ MODULE Merra2_A3MstEModule
        CASE( 'native', 'nested CH', 'nested EU', 'nested NA', 'nested SE' )
           DI = '0.3125'
           DJ = '0.25'
-!       CASE ( 'nested 0.5 x 0.625' )
-! (lzh,06/21/2014)
        CASE( 'nested CH 05', 'nested EU 05', 'nested NA 05', 'nested SE 05' )
           DI = '0.625'
           DJ = '0.5'
@@ -433,7 +431,8 @@ MODULE Merra2_A3MstEModule
 !
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
-!  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
+!  05 Nov 2015 - R. Yantosca - Bug fix, nested grids need to be declared
+!                              with L05x0625+1
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -503,30 +502,17 @@ MODULE Merra2_A3MstEModule
                           gName,     fName,        fOut4x5                 )
     ENDIF
     
-    ! Open 0.5 x 0.625 output file
-    IF ( doGlobal05 ) THEN
-       fName = TRIM( tempDirTmpl05x0625 ) // TRIM( dataTmpl05x0625 )
-       gName = '0.5 x 0.625 global'
-       CALL ExpandDate  ( fName,         yyyymmdd,        000000      )      
-       CALL StrRepl     ( fName,         '%%%%%%',        'A3mstE'    )
-       CALL NcOutFileDef( I05x0625,      J05x0625,        &
-                          L05x0625+1,    TIMES_A3,        &
-                          xMid_05x0625,  nc_yMid_05x0625, &
-                          zEdge_05x0625, a3Mins,          &
-                          gName,         fName,           fOut05x0625 )
-    ENDIF
-
     ! Open nested 0625 CH output file
     IF ( doNestCh05 ) THEN
        fName = TRIM( tempDirTmplNestCh05 ) // TRIM( dataTmplNestCh05 )
        gName = 'nested CH 05'
        CALL ExpandDate  ( fName,     yyyymmdd,     000000      )
        CALL StrRepl     ( fName,     '%%%%%%',     'A3mstE'    )
-       CALL NcOutFileDef( I_NestCh05,  J_NestCh05, L05x0625,  TIMES_A3,  &
-                          xMid_05x0625(I0_ch05:I1_ch05),          &
-                          yMid_05x0625(J0_ch05:J1_ch05),          &
-                          zEdge_05x0625,                a3Mins,    &
-                          gName,    fName,        fOut05NestCh          )
+       CALL NcOutFileDef( I_NestCh05,  J_NestCh05, L05x0625+1, TIMES_A3,    &
+                          xMid_05x0625(I0_ch05:I1_ch05),                    &
+                          yMid_05x0625(J0_ch05:J1_ch05),                    &
+                          zEdge_05x0625,           a3Mins,                  &
+                          gName,    fName,         fOut05NestCh            )
     ENDIF
 
     ! Open nested EU output file
@@ -535,11 +521,11 @@ MODULE Merra2_A3MstEModule
        gName = 'nested EU 05'
        CALL ExpandDate  ( fName,     yyyymmdd,     000000      )
        CALL StrRepl     ( fName,     '%%%%%%',     'A3mstE'    )
-       CALL NcOutFileDef( I_NestEu05,  J_NestEu05, L05x0625, TIMES_A3,  &
-                          xMid_05x0625(I0_eu05:I1_eu05),          &
-                          yMid_05x0625(J0_eu05:J1_eu05),          &
-                          zEdge_05x0625,                a3Mins,    &
-                          gName,    fName,       fOut05NestEu          )
+       CALL NcOutFileDef( I_NestEu05,  J_NestEu05, L05x0625+1, TIMES_A3,    &
+                          xMid_05x0625(I0_eu05:I1_eu05),                    &
+                          yMid_05x0625(J0_eu05:J1_eu05),                    &
+                          zEdge_05x0625,           a3Mins,                  &
+                          gName,    fName,         fOut05NestEu            )
     ENDIF
 
     ! Open nested NA output file
@@ -548,11 +534,11 @@ MODULE Merra2_A3MstEModule
        gName = 'nested NA 05'
        CALL ExpandDate  ( fName,     yyyymmdd,     000000      )
        CALL StrRepl     ( fName,     '%%%%%%',     'A3mstE'    )
-       CALL NcOutFileDef( I_NestNa05,  J_NestNa05, L05x0625, TIMES_A3,  &
-                          xMid_05x0625(I0_na05:I1_na05),          &
-                          yMid_05x0625(J0_na05:J1_na05),          &
-                          zEdge_05x0625,                a3Mins,    &
-                          gName,    fName,      fOut05NestNa          )
+       CALL NcOutFileDef( I_NestNa05,  J_NestNa05, L05x0625+1, TIMES_A3,    &
+                          xMid_05x0625(I0_na05:I1_na05),                    &
+                          yMid_05x0625(J0_na05:J1_na05),                    &
+                          zEdge_05x0625,           a3Mins,                  &
+                          gName,    fName,         fOut05NestNa            )
     ENDIF
 
     ! Open nested SE output file
@@ -561,11 +547,11 @@ MODULE Merra2_A3MstEModule
        gName = 'nested SE 05'
        CALL ExpandDate  ( fName,     yyyymmdd,     000000      )
        CALL StrRepl     ( fName,     '%%%%%%',     'A3mstE'    )
-       CALL NcOutFileDef( I_NestSe05,  J_NestSe05, L05x0625, TIMES_A3,  &
-                          xMid_05x0625(I0_se05:I1_se05),          &
-                          yMid_05x0625(J0_se05:J1_se05),          &
-                          zEdge_05x0625,                a3Mins,    &
-                          gName,    fName,      fOut05NestSe         )
+       CALL NcOutFileDef( I_NestSe05,  J_NestSe05, L05x0625+1, TIMES_A3,   &
+                          xMid_05x0625(I0_se05:I1_se05),                   &
+                          yMid_05x0625(J0_se05:J1_se05),                   &
+                          zEdge_05x0625,           a3Mins,                 &
+                          gName,    fName,         fOut05NestSe           )
     ENDIF
     
     !=======================================================================
@@ -834,7 +820,7 @@ MODULE Merra2_A3MstEModule
           ! Nested China (point to proper slice of global data)
           IF ( doNestCh05 ) THEN
              Ptr  => Qflip( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )
-             st4d = (/ 1,       1,       1,       H /)
+             st4d = (/ 1,         1,         1,         H /)
              ct4d = (/ XNestCh05, YNestCh05, ZNestCh05, 1 /)
              CALL NcWr( Ptr, fOut05NestCh, TRIM( name ), st4d, ct4d )
              NULLIFY( Ptr )
@@ -843,7 +829,7 @@ MODULE Merra2_A3MstEModule
           ! Nested EU (point to proper slice of global data)
           IF ( doNestEu05 ) THEN
              Ptr  => Qflip( I0_eu05:I1_eu05, J0_eu05:J1_eu05, : )
-             st4d = (/ 1,       1,       1,       H /)
+             st4d = (/ 1,         1,         1,         H /)
              ct4d = (/ XNestEu05, YNestEu05, ZNestEu05, 1 /)
              CALL NcWr( Ptr, fOut05NestEu, TRIM( name ), st4d, ct4d )
              NULLIFY( Ptr )
@@ -852,7 +838,7 @@ MODULE Merra2_A3MstEModule
           ! Nested NA (point to proper slice of global data)
           IF ( doNestNa05 ) THEN
              Ptr  => Qflip( I0_na05:I1_na05, J0_na05:J1_na05, : )
-             st4d = (/ 1,       1,       1,       H /)
+             st4d = (/ 1,         1,         1,         H /)
              ct4d = (/ XNestNa05, YNestNa05, ZNestNa05, 1 /)
              CALL NcWr( Ptr, fOut05NestNa, TRIM( name ), st4d, ct4d )
              NULLIFY( Ptr )
@@ -861,7 +847,7 @@ MODULE Merra2_A3MstEModule
           ! Nested SE (point to proper slice of global data)
           IF ( doNestSe05 ) THEN
              Ptr  => Qflip( I0_se05:I1_se05, J0_se05:J1_se05, : )
-             st4d = (/ 1,         1,         1,       H /)
+             st4d = (/ 1,         1,         1,         H /)
              ct4d = (/ XNestSe05, YNestSe05, ZNestSe05, 1 /)
              CALL NcWr( Ptr, fOut05NestSe, TRIM( name ), st4d, ct4d )
              NULLIFY( Ptr )
