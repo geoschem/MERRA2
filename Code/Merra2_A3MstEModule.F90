@@ -432,7 +432,9 @@ MODULE Merra2_A3MstEModule
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 !  05 Nov 2015 - R. Yantosca - Bug fix, nested grids need to be declared
-!                              with L05x0625+1
+!                              with L05x0625+1'
+!  01 Feb 2016 - R. Yantosca - Bug fix: added missing code to open the
+!                              GLOBAL 0.5 x 0.625 FILE
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -501,7 +503,20 @@ MODULE Merra2_A3MstEModule
                           xMid_4x5,  nc_yMid_4x5,  zEdge_4x5,    a3Mins,    &
                           gName,     fName,        fOut4x5                 )
     ENDIF
-    
+
+    ! Open 0.5 x 0.625 output file
+    IF ( doGlobal05 ) THEN
+       fName = TRIM( tempDirTmpl05x0625 ) // TRIM( dataTmpl05x0625 )
+       gName = '0.5 x 0.625 global'
+       CALL ExpandDate  ( fName,        yyyymmdd,        000000      )      
+       CALL StrRepl     ( fName,        '%%%%%%',        'A3mstE'    )
+       CALL NcOutFileDef( I05x0625,     J05x0625,        
+                          L05x0625+1,   TIMES_A3,        &
+                          xMid_05x0625, nc_yMid_05x0625, &
+                          zMid_05x0625, a3Mins,          &
+                          gName,        fName,           fOut05x0625 )
+    ENDIF
+
     ! Open nested 0625 CH output file
     IF ( doNestCh05 ) THEN
        fName = TRIM( tempDirTmplNestCh05 ) // TRIM( dataTmplNestCh05 )
