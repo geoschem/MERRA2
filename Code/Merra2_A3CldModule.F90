@@ -1007,6 +1007,8 @@ MODULE Merra2_A3CldModule
 ! !REVISION HISTORY:
 !  28 Jul 2015 - R. Yantosca - Initial version, based on GEOS-FP
 !  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
+!  17 Mar 2016 - M. Sulprizio- Fix bug in std4d to account for multiple data
+!                              blocks per file
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1169,8 +1171,7 @@ MODULE Merra2_A3CldModule
        !==================================================================
 
        ! Start and count index arrays for netCDF
-       ! (There is only one data block per file)
-       st4d = (/ 1, 1, 1, 1 /)
+       st4d = (/ 1, 1, 1, H /)
        ct4d = (/ X, Y, Z, 1 /)
 
        ! CLOUD
