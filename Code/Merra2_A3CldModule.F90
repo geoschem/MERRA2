@@ -1009,6 +1009,8 @@ MODULE Merra2_A3CldModule
 !  08 Sep 2015 - M. Sulprizio- Added global 0.5 x 0.625 grid
 !  17 Mar 2016 - M. Sulprizio- Fix bug in std4d to account for multiple data
 !                              blocks per file
+!  18 Mar 2016 - M. Sulprizio- Add fixes for flipping 0.5x0.625 global and
+!                              nested fields
 !EOP
 !------------------------------------------------------------------------------
 !BOC
@@ -1266,19 +1268,19 @@ MODULE Merra2_A3CldModule
           ct4d = (/ X05x0625,  Y05x0625,  Z05x0625,  1 /)
 
           ! CLOUD
-          Ptr  => Cld(:,:,:)
+          Ptr  => Cld(:,:,Z:1:-1 )
           CALL NcWr( Ptr, fOut05x0625, 'CLOUD',    st4d, ct4d )
 
           ! TAUCLI 
-          Ptr  => TauI(:,:,:)
+          Ptr  => TauI(:,:,Z:1:-1 )
           CALL NcWr( Ptr, fOut05x0625, 'TAUCLI',   st4d, ct4d )
 
           ! TAUCLW 
-          Ptr  => TauW(:,:,:)
+          Ptr  => TauW(:,:,Z:1:-1 )
           CALL NcWr( Ptr, fOut05x0625, 'TAUCLW',   st4d, ct4d )
 
           ! OPTDEPTH
-          Ptr  => OptD(:,:,:)
+          Ptr  => OptD(:,:,Z:1:-1 )
           CALL NcWr( Ptr, fOut05x0625, 'OPTDEPTH', st4d, ct4d )
 
           ! Free pointer memory
@@ -1295,19 +1297,19 @@ MODULE Merra2_A3CldModule
           ct4d = (/ XNestCh05, YNestCh05, ZNestCh05, 1 /)
 
           ! CLOUD
-          Ptr  => Cld( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )
+          Ptr  => Cld( I0_ch05:I1_ch05, J0_ch05:J1_ch05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestCh, 'CLOUD',    st4d, ct4d )
 
           ! TAUCLI 
-          Ptr  => TauI( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )
+          Ptr  => TauI( I0_ch05:I1_ch05, J0_ch05:J1_ch05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestCh, 'TAUCLI',   st4d, ct4d )
 
           ! TAUCLW 
-          Ptr  => TauW( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )
+          Ptr  => TauW( I0_ch05:I1_ch05, J0_ch05:J1_ch05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestCh, 'TAUCLW',   st4d, ct4d )
 
           ! OPTDEPTH
-          Ptr  => OptD( I0_ch05:I1_ch05, J0_ch05:J1_ch05, : )
+          Ptr  => OptD( I0_ch05:I1_ch05, J0_ch05:J1_ch05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestCh, 'OPTDEPTH', st4d, ct4d )
 
           ! Free pointer memory
@@ -1324,19 +1326,19 @@ MODULE Merra2_A3CldModule
           ct4d = (/ XNestEu05, YNestEu05, ZNestEu05, 1 /)
 
           ! CLOUD
-          Ptr  => Cld( I0_eu05:I1_eu05, J0_eu05:J1_eu05, : )
+          Ptr  => Cld( I0_eu05:I1_eu05, J0_eu05:J1_eu05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestEu, 'CLOUD',    st4d, ct4d )
 
           ! TAUCLI
-          Ptr  => TauI( I0_eu05:I1_eu05, J0_eu05:J1_eu05, : )
+          Ptr  => TauI( I0_eu05:I1_eu05, J0_eu05:J1_eu05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestEu, 'TAUCLI',   st4d, ct4d )
 
           ! TAUCLW
-          Ptr  => TauW( I0_eu05:I1_eu05, J0_eu05:J1_eu05, : )
+          Ptr  => TauW( I0_eu05:I1_eu05, J0_eu05:J1_eu05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestEu, 'TAUCLW',   st4d, ct4d )
 
           ! OPTDEPTH
-          Ptr  => OptD( I0_eu05:I1_eu05, J0_eu05:J1_eu05, : )
+          Ptr  => OptD( I0_eu05:I1_eu05, J0_eu05:J1_eu05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestEu, 'OPTDEPTH', st4d, ct4d )
 
           ! Free pointer memory
@@ -1353,19 +1355,19 @@ MODULE Merra2_A3CldModule
           ct4d = (/ XNestNa05, YNestNa05, ZNestNa05, 1 /)
 
           ! CLOUD
-          Ptr  => Cld( I0_na05:I1_na05, J0_na05:J1_na05, : )
+          Ptr  => Cld( I0_na05:I1_na05, J0_na05:J1_na05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestNa, 'CLOUD',    st4d, ct4d )
 
           ! TAUCLI
-          Ptr  => TauI( I0_na05:I1_na05, J0_na05:J1_na05, : )
+          Ptr  => TauI( I0_na05:I1_na05, J0_na05:J1_na05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestNa, 'TAUCLI',   st4d, ct4d )
 
           ! TAUCLW
-          Ptr  => TauW( I0_na05:I1_na05, J0_na05:J1_na05, : )
+          Ptr  => TauW( I0_na05:I1_na05, J0_na05:J1_na05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestNa, 'TAUCLW',   st4d, ct4d )
 
           ! OPTDEPTH
-          Ptr  => OptD( I0_na05:I1_na05, J0_na05:J1_na05, : )
+          Ptr  => OptD( I0_na05:I1_na05, J0_na05:J1_na05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestNa, 'OPTDEPTH', st4d, ct4d )
 
           ! Free pointer memory
@@ -1382,19 +1384,19 @@ MODULE Merra2_A3CldModule
           ct4d = (/ XNestSe05, YNestSe05, ZNestSe05, 1 /)
 
           ! CLOUD
-          Ptr  => Cld( I0_se05:I1_se05, J0_se05:J1_se05, : )
+          Ptr  => Cld( I0_se05:I1_se05, J0_se05:J1_se05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestSe, 'CLOUD',    st4d, ct4d )
 
           ! TAUCLI
-          Ptr  => TauI( I0_se05:I1_se05, J0_se05:J1_se05, : )
+          Ptr  => TauI( I0_se05:I1_se05, J0_se05:J1_se05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestSe, 'TAUCLI',   st4d, ct4d )
 
           ! TAUCLW
-          Ptr  => TauW( I0_se05:I1_se05, J0_se05:J1_se05, : )
+          Ptr  => TauW( I0_se05:I1_se05, J0_se05:J1_se05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestSe, 'TAUCLW',   st4d, ct4d )
 
           ! OPTDEPTH
-          Ptr  => OptD( I0_se05:I1_se05, J0_se05:J1_se05, : )
+          Ptr  => OptD( I0_se05:I1_se05, J0_se05:J1_se05, Z:1:-1 )
           CALL NcWr( Ptr, fOut05NestSe, 'OPTDEPTH', st4d, ct4d )
 
           ! Free pointer memory
